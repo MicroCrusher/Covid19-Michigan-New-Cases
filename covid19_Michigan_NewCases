@@ -1,0 +1,37 @@
+from matplotlib import pyplot as plt
+import pandas as pd
+
+df = pd.read_csv("us-counties.csv")
+
+# print(df)
+
+df_Michigan = df[ df["state"] == "Michigan"].copy()
+
+# print (df_Michigan)
+
+df_Michigan["date"] = pd.to_datetime(df_Michigan["date"])
+
+plt.style.use("seaborn-colorblind")
+print (plt.style.available)
+
+series_Michigan_sum = df_Michigan.groupby("date")["cases"].sum()
+series_Michigan_diff = series_Michigan_sum.diff()
+#print (series_Michigan_sum)
+#print (series_Michigan_diff)
+
+ax = plt.subplot()
+ax.spines["right"].set_visible(False)
+ax.spines["left"].set_visible(False)
+
+
+plt.plot(series_Michigan_diff.index, series_Michigan_diff.values)
+
+plt.ylabel("New Cases")
+plt.title("Michigan new Cases per Day.")
+plt.grid(True)
+
+plt.yticks(range(0, 12001, 1000))
+plt.xticks(rotation = 45)
+
+
+plt.show()
