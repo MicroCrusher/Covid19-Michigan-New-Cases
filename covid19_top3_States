@@ -1,0 +1,47 @@
+from matplotlib import pyplot as plt
+import pandas as pd
+
+df = pd.read_csv("us-counties.csv")
+
+
+unique_states = df["state"].unique()
+
+plt.style.use("seaborn-colorblind")
+
+last_date = df["date"].max()
+df_last_date = df[ df["date"] == last_date]
+
+series_last_date = df_last_date.groupby("state")["cases"].sum()
+series_last_date = series_last_date.nlargest(3)
+
+# Remove left and right plot lines.
+ax = plt.subplot()       
+ax.spines["right"].set_visible(False)    
+ax.spines["left"].set_visible(False)    
+
+# The chat is flat before 3/15 so lets limit it to after that date.
+date_after = pd.Timestamp("03/15/2020")
+
+for state in series_last_date.index:
+    df_state = df[ df["state"] == state ].copy()
+    df_state["date"] = pd.to_datetime(df_state["date"])
+    
+    
+    series_state_sum = df_state.groupby("date")["cases"].sum()
+    series_state_diff = series_state_sum.diff()
+    #print (series_Michigan_sum)
+    #print (series_Michigan_diff)
+
+    plt.plot(series_state_diff.index, series_state_diff.values, label = state)
+
+plt.ylabel("New Cases")
+plt.title('Top 3 Covid-19 States')
+plt.grid(True)
+
+# Plot custom range for our Y axis
+plt.yticks(range(0, 12001, 1000))
+# rotate our dates.
+plt.xticks(rotation=45)
+
+plt.legend()
+plt.show()
